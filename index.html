@@ -1,135 +1,1378 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ 趣味魔法页面</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
-        body{
-            min-height:100vh;
-            transition: background 0.4s ease;
-            overflow:hidden;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            cursor:pointer;
-        }
-        .star{
-            position:absolute;
-            pointer-events:none;
-            color:#fff;
-            font-size:24px;
-            animation:fly 0.8s forwards;
-        }
-        @keyframes fly{
-            0%{opacity:1;transform:translate(0,0) scale(1)}
-            100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}
-        }
-        .box{
-            background:rgba(255,255,255,0.25);
-            backdrop-filter:blur(10px);
-            padding:40px 50px;
-            border-radius:22px;
-            text-align:center;
-            box-shadow:0 8px 32px rgba(0,0,0,0.15);
-        }
-        h1{
-            color:#fff;
-            font-size:2.2rem;
-            margin-bottom:16px;
-            text-shadow:0 2px 8px rgba(0,0,0,0.2);
-        }
-        .tip{
-            color:#fff;
-            font-size:1.1rem;
-            margin-bottom:28px;
-            min-height:32px;
-        }
-        .btn-group{
-            display:flex;
-            gap:14px;
-            justify-content:center;
-        }
-        button{
-            padding:12px 24px;
-            border:none;
-            border-radius:999px;
-            font-size:1rem;
-            cursor:pointer;
-            transition:0.2s;
-            background:#ffffff;
-            color:#333;
-        }
-        button:hover{
-            transform:scale(1.06);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深渊观测站 · 向下，直到没有光</title>
+<meta name="description" content="从海面到马里亚纳海沟底部的一次下潜记录。滚动即下潜，深度与压力实时读数。">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@200;400;600;900&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ===== 设计令牌 ===== */
+:root{
+  --ink:#04090B;            /* 最深处的墨 */
+  --abyss:#061014;
+  --deep:#08181B;
+  --bone:#E9E5D8;           /* 鲸骨白 */
+  --bone-2:#C4CCC6;
+  --bone-3:#8C9A94;
+  --line:#22383B;
+  --phosphor:#5FE0BE;       /* 磷光青 */
+  --phosphor-dim:#2E8C7C;
+  --amber:#E9A45C;          /* 诱饵琥珀 */
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{margin:0}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:var(--sans);
+  font-weight:300;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+img{max-width:100%}
+::selection{background:var(--phosphor);color:#03110D}
+
+/* ===== 固定背景层 ===== */
+.stage{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-media{position:absolute;inset:0;will-change:opacity,transform}
+.hero-media img{
+  width:100%;height:100%;object-fit:cover;object-position:50% 38%;
+  transform:scale(1.06);
+  filter:saturate(.92) contrast(1.05);
+  animation:breathe 26s ease-in-out infinite alternate;
+}
+.hero-media::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(4,9,11,.62) 0%,
+    rgba(4,9,11,.34) 28%,
+    rgba(4,9,11,.72) 62%,
+    rgba(4,9,11,.96) 88%,
+    #04090B 100%);
+}
+#snow{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.veil{position:absolute;inset:0;background:#03080A;opacity:0}
+.grain{
+  position:absolute;inset:-50%;opacity:.055;mix-blend-mode:overlay;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift 8s steps(6) infinite;
+}
+@keyframes breathe{from{transform:scale(1.06) translate3d(0,0,0)}to{transform:scale(1.12) translate3d(0,-1.4%,0)}}
+@keyframes grainShift{
+  0%{transform:translate3d(0,0,0)}20%{transform:translate3d(-2%,1%,0)}
+  40%{transform:translate3d(1%,-2%,0)}60%{transform:translate3d(-1%,-1%,0)}
+  80%{transform:translate3d(2%,1%,0)}100%{transform:translate3d(0,0,0)}
+}
+
+/* ===== 顶部导航 ===== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;padding:22px clamp(18px,4vw,52px);
+  background:linear-gradient(to bottom,rgba(4,9,11,.82),rgba(4,9,11,0));
+  backdrop-filter:blur(2px);
+}
+.mark{display:flex;align-items:baseline;gap:12px;font-family:var(--mono)}
+.mark b{font-size:15px;letter-spacing:.28em;font-weight:500;color:var(--bone)}
+.mark span{font-size:11px;letter-spacing:.14em;color:var(--bone-3)}
+.nav-links{display:flex;gap:clamp(14px,2.4vw,34px);font-family:var(--mono);font-size:11px;letter-spacing:.16em}
+.nav-links a{
+  color:var(--bone-3);text-decoration:none;padding:6px 0;position:relative;
+  transition:color .3s ease;
+}
+.nav-links a::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--phosphor);transform:scaleX(0);transform-origin:left;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.nav-links a:hover,.nav-links a:focus-visible{color:var(--bone)}
+.nav-links a:hover::after,.nav-links a:focus-visible::after{transform:scaleX(1)}
+.sound{
+  display:inline-flex;align-items:center;gap:9px;
+  margin-left:4px;padding:7px 12px;cursor:pointer;
+  border:1px solid #2A4446;background:transparent;color:var(--bone-3);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  transition:border-color .3s ease,color .3s ease,background .3s ease;
+}
+.sound:hover,.sound:focus-visible{border-color:var(--phosphor-dim);color:var(--bone)}
+.sound .bars{display:flex;align-items:flex-end;gap:2px;height:12px}
+.sound .bars i{display:block;width:2px;height:3px;background:currentColor;opacity:.45}
+.sound[aria-pressed="true"]{border-color:var(--phosphor-dim);color:var(--phosphor);background:rgba(95,224,190,.06)}
+.sound[aria-pressed="true"] .bars i{opacity:1;background:var(--phosphor);animation:eq 1.1s ease-in-out infinite}
+.sound[aria-pressed="true"] .bars i:nth-child(1){animation-delay:-.15s}
+.sound[aria-pressed="true"] .bars i:nth-child(2){animation-delay:-.5s;animation-duration:.85s}
+.sound[aria-pressed="true"] .bars i:nth-child(3){animation-delay:-.3s;animation-duration:1.3s}
+.sound[aria-pressed="true"] .bars i:nth-child(4){animation-delay:-.7s;animation-duration:.95s}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+@media (max-width:760px){
+  .nav-links a[data-hide-sm]{display:none}
+}
+
+/* ===== 左侧深度刻度仪（签名元素） ===== */
+.instrument{
+  position:fixed;left:clamp(18px,3vw,40px);top:0;bottom:0;z-index:10;
+  width:132px;display:flex;flex-direction:column;justify-content:center;
+  gap:22px;pointer-events:none;
+}
+.ruler{position:relative;height:46vh;width:1px;background:linear-gradient(to bottom,transparent,var(--line) 10%,var(--line) 90%,transparent)}
+.ruler .tick{position:absolute;left:0;width:9px;height:1px;background:var(--line)}
+.ruler .tick.major{width:16px;background:#40605F}
+.ruler .tick-label{position:absolute;left:22px;transform:translateY(-50%);font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#5E736D}
+.ruler .marker{
+  position:absolute;left:-6px;width:13px;height:13px;border-radius:50%;
+  border:1px solid var(--phosphor);background:rgba(95,224,190,.14);
+  box-shadow:0 0 14px rgba(95,224,190,.45),inset 0 0 6px rgba(95,224,190,.35);
+  transform:translateY(-50%);transition:top .1s linear;
+}
+.ruler .marker::after{
+  content:"";position:absolute;left:5px;top:5px;width:3px;height:3px;border-radius:50%;
+  background:var(--phosphor);
+}
+.readout{display:flex;flex-direction:column;gap:4px;font-family:var(--mono)}
+.readout .cap{font-size:9px;letter-spacing:.3em;color:#5E736D}
+.readout .depth{
+  font-size:31px;font-weight:500;letter-spacing:-.01em;color:var(--bone);
+  line-height:1;font-variant-numeric:tabular-nums;
+}
+.readout .depth small{font-size:11px;letter-spacing:.1em;color:var(--bone-3);margin-left:6px;font-weight:400}
+.readout .zone{font-size:10px;letter-spacing:.1em;color:var(--phosphor-dim);margin-top:6px}
+.readout .press{font-size:10px;letter-spacing:.08em;color:var(--bone-3);font-variant-numeric:tabular-nums}
+.echo-tag{
+  display:none;margin-top:6px;font-size:9px;letter-spacing:.1em;color:var(--amber);
+}
+.echo-tag.show{display:block}
+.instrument.echo .depth{color:var(--phosphor);text-shadow:0 0 22px rgba(95,224,190,.55)}
+.instrument.echo .press{color:var(--amber)}
+.instrument.echo .marker{animation:markerPing .65s ease-out 2}
+@keyframes markerPing{
+  0%{transform:translateY(-50%) scale(1);box-shadow:0 0 14px rgba(95,224,190,.45)}
+  45%{transform:translateY(-50%) scale(1.75);box-shadow:0 0 26px rgba(95,224,190,.75)}
+  100%{transform:translateY(-50%) scale(1);box-shadow:0 0 14px rgba(95,224,190,.45)}
+}
+.hud.echo{border-color:var(--phosphor-dim)}
+.hud.echo #hudDepth{color:var(--phosphor)}
+@media (max-width:1180px){.instrument{display:none}}
+
+.hud{
+  display:none;position:fixed;left:14px;bottom:14px;z-index:12;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  padding:9px 12px;border:1px solid var(--line);background:rgba(4,9,11,.72);
+  color:var(--bone-2);font-variant-numeric:tabular-nums;backdrop-filter:blur(6px);
+  gap:12px;align-items:center;
+}
+.hud i{display:block;width:5px;height:5px;border-radius:50%;background:var(--phosphor);box-shadow:0 0 8px var(--phosphor)}
+@media (max-width:1180px){.hud{display:flex}}
+
+/* ===== 版心 ===== */
+.shell{width:100%;max-width:1280px;margin:0 auto;padding:0 clamp(20px,4.5vw,64px);position:relative;z-index:2}
+@media (min-width:1181px){
+  .shell{padding-left:clamp(170px,14vw,220px)}
+}
+main{position:relative;z-index:2}
+
+/* ===== Hero ===== */
+.hero{
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding-top:32vh;padding-bottom:clamp(38px,7vh,78px);
+}
+.hero .kicker{
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--bone-3);
+  margin-bottom:clamp(22px,4vh,40px);
+}
+.hero .kicker::before{content:"";width:34px;height:1px;background:var(--phosphor-dim)}
+.hero h1{
+  font-family:var(--serif);font-weight:200;
+  font-size:clamp(46px,8.6vw,138px);
+  line-height:.98;letter-spacing:.02em;margin:0;
+  text-wrap:balance;
+  color:#F1EEE3;
+  text-shadow:0 2px 40px rgba(0,0,0,.55);
+}
+.hero h1 em{font-style:normal;font-weight:600;color:var(--phosphor)}
+.hero-sub{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:24px;margin-top:clamp(26px,4.5vh,46px);
+  padding-top:18px;border-top:1px solid rgba(233,229,216,.18);
+}
+.hero-sub p{
+  margin:0;max-width:44ch;font-size:clamp(14px,1.15vw,16px);line-height:1.9;color:var(--bone-2);
+}
+.hero-sub .coords{
+  font-family:var(--mono);font-size:10.5px;line-height:2;letter-spacing:.1em;
+  color:var(--bone-3);text-align:right;
+}
+.scroll-cue{
+  margin-top:clamp(34px,6vh,64px);
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--bone-3);
+}
+.scroll-cue .bar{position:relative;width:64px;height:1px;background:rgba(233,229,216,.3);overflow:hidden}
+.scroll-cue .bar::after{
+  content:"";position:absolute;top:0;left:0;width:26px;height:1px;background:var(--phosphor);
+  animation:cueRun 2.4s cubic-bezier(.5,0,.2,1) infinite;
+}
+@keyframes cueRun{0%{transform:translateX(-100%)}60%,100%{transform:translateX(280%)}}
+.sonar-hint{
+  display:flex;align-items:center;gap:9px;margin-top:16px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#5E736D;
+}
+.sonar-hint::before{
+  content:"";width:6px;height:6px;border-radius:50%;border:1px solid var(--phosphor-dim);
+  animation:hintPulse 2.8s ease-out infinite;
+}
+@keyframes hintPulse{
+  0%{box-shadow:0 0 0 0 rgba(95,224,190,.45);opacity:.9}
+  70%{box-shadow:0 0 0 9px rgba(95,224,190,0);opacity:1}
+  100%{box-shadow:0 0 0 0 rgba(95,224,190,0);opacity:.9}
+}
+.sonar-layer{position:fixed;inset:0;z-index:6;pointer-events:none}
+
+/* ===== 章节通用 ===== */
+.chapter{padding:clamp(80px,13vh,160px) 0;position:relative}
+.chapter + .chapter{border-top:1px solid rgba(34,56,59,.55)}
+section[id],.chapter[id]{scroll-margin-top:74px}
+.eyebrow{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--phosphor-dim);
+  margin-bottom:clamp(24px,4vh,40px);
+}
+.eyebrow .idx{color:var(--bone-3)}
+.eyebrow .rule{flex:0 0 40px;height:1px;background:#2A4446;align-self:center}
+h2{
+  font-family:var(--serif);font-weight:400;
+  font-size:clamp(32px,4.6vw,64px);line-height:1.12;letter-spacing:.01em;
+  margin:0 0 clamp(21px,3.4vh,34px);color:#EFECDF;text-wrap:balance;
+}
+h2 .thin{font-weight:200;color:var(--bone-2)}
+.lede{font-family:var(--serif);font-weight:400;font-size:clamp(18px,1.6vw,22px);line-height:1.9;color:#DCD8C9;max-width:34em;margin:0 0 26px}
+.body{font-size:clamp(15px,1.12vw,17px);line-height:2.05;color:var(--bone-2);max-width:36em}
+.body p{margin:0 0 1.15em}
+.body p:last-child{margin-bottom:0}
+.body .accent{color:var(--phosphor)}
+
+/* 图文分栏 */
+.spread{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(30px,5vw,72px);align-items:center}
+.spread.flip .spread-text{order:2}
+.spread.flip .spread-media{order:1}
+@media (max-width:900px){
+  .spread{grid-template-columns:1fr;gap:34px}
+  .spread.flip .spread-text,.spread.flip .spread-media{order:initial}
+}
+.figure{margin:0;position:relative}
+.figure .frame{position:relative;overflow:hidden;background:#0A1416;border:1px solid rgba(34,56,59,.7)}
+.figure img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;filter:saturate(.94) contrast(1.04)}
+.figure .frame::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(120% 90% at 50% 40%,transparent 42%,rgba(4,9,11,.62) 100%);
+}
+.figure figcaption{
+  display:flex;justify-content:space-between;gap:16px;
+  margin-top:12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#71857F;
+}
+.figure figcaption .src{text-align:right;color:#566B66}
+
+/* 数据条 */
+.stats{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;margin-top:clamp(30px,4.5vh,44px);border:1px solid var(--line);background:var(--line);
+}
+.stats > div{background:rgba(6,16,20,.72);padding:20px 22px}
+.stats .num{font-family:var(--mono);font-size:clamp(20px,2.2vw,28px);font-weight:500;color:var(--phosphor);font-variant-numeric:tabular-nums}
+.stats .lab{font-size:11.5px;line-height:1.7;color:var(--bone-3);margin-top:8px}
+@media (max-width:560px){.stats{grid-template-columns:1fr}}
+
+/* ===== 剖面图 ===== */
+.profile{
+  margin-top:clamp(34px,5vh,52px);
+  border:1px solid rgba(34,56,59,.75);background:linear-gradient(180deg,rgba(9,26,30,.72),rgba(4,10,12,.9));
+  padding:clamp(16px,2.4vw,26px);
+}
+.profile .head{
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#71857F;margin-bottom:8px;
+}
+.profile svg{display:block;width:100%;height:auto}
+.profile .legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#677C76}
+.profile .legend span{display:inline-flex;align-items:center;gap:7px}
+.profile .legend i{display:block;width:12px;height:1px;background:#2E8C7C}
+.profile .legend i.dot{width:6px;height:6px;border-radius:50%;background:var(--phosphor)}
+
+/* ===== 仪表面板 ===== */
+.console{
+  margin-top:clamp(32px,5vh,48px);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+}
+.console .cell{padding:clamp(20px,3vw,30px) clamp(14px,2.2vw,26px);border-right:1px solid var(--line)}
+.console .cell:last-child{border-right:0}
+.console .cap{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:#5E736D}
+.console .val{font-family:var(--mono);font-size:clamp(26px,3.2vw,42px);font-weight:500;line-height:1.1;margin-top:10px;color:var(--bone);font-variant-numeric:tabular-nums}
+.console .val small{font-size:11px;letter-spacing:.08em;color:var(--bone-3);margin-left:5px;font-weight:400}
+.console .note{font-size:11px;line-height:1.65;color:var(--bone-3);margin-top:8px;min-height:2.6em}
+.console .track{height:2px;background:#1B2C2E;margin-top:14px;position:relative;overflow:hidden}
+.console .track .fill{position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--phosphor-dim),var(--phosphor));transition:width .15s linear}
+.console .track.amber .fill{background:linear-gradient(90deg,#8A5A2E,var(--amber))}
+@media (max-width:760px){
+  .console{grid-template-columns:1fr}
+  .console .cell{border-right:0;border-bottom:1px solid var(--line)}
+  .console .cell:last-child{border-bottom:0}
+}
+
+/* ===== 发光实验室 ===== */
+.lab{
+  margin-top:clamp(30px,4.5vh,46px);position:relative;
+  border:1px solid rgba(34,56,59,.8);background:#020708;overflow:hidden;
+  cursor:crosshair;
+}
+.lab canvas{display:block;width:100%;height:clamp(340px,62vh,620px);touch-action:pan-y}
+.lab .lab-top{
+  position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:16px;
+  padding:14px 18px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#6F847E;pointer-events:none;
+}
+.lab .counter{color:var(--phosphor);font-variant-numeric:tabular-nums}
+.lab .hint{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:#7E918B;pointer-events:none;
+  transition:opacity .6s ease;white-space:nowrap;
+}
+.lab .hint.gone{opacity:0}
+
+/* ===== 时间轴 ===== */
+.timeline{margin-top:clamp(30px,5vh,46px);border-top:1px solid var(--line)}
+.tl-row{
+  display:grid;grid-template-columns:118px 1fr;gap:clamp(18px,4vw,54px);
+  padding:clamp(22px,3.2vh,32px) 0;border-bottom:1px solid rgba(34,56,59,.6);
+  align-items:start;
+}
+.tl-row .year{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--phosphor);font-variant-numeric:tabular-nums}
+.tl-row .year span{display:block;font-size:9px;letter-spacing:.14em;color:#5E736D;margin-top:7px}
+.tl-row .txt h3{font-family:var(--serif);font-weight:600;font-size:clamp(17px,1.7vw,22px);margin:0 0 8px;color:#EAE6D9;letter-spacing:.01em}
+.tl-row .txt p{margin:0;font-size:14.5px;line-height:1.95;color:var(--bone-2);max-width:44em}
+@media (max-width:620px){.tl-row{grid-template-columns:1fr;gap:10px}}
+
+/* ===== 结尾 ===== */
+.outro{padding:clamp(90px,16vh,180px) 0 clamp(60px,9vh,100px);text-align:left}
+.outro .big{
+  font-family:var(--serif);font-weight:200;font-size:clamp(28px,4.2vw,58px);
+  line-height:1.45;letter-spacing:.01em;color:#EFECDF;max-width:20em;margin:0;text-wrap:balance;
+}
+.outro .big b{font-weight:600;color:var(--phosphor)}
+.outro p{margin:clamp(18px,3vh,26px) 0 0;font-size:15px;line-height:1.95;color:var(--bone-3);max-width:34em}
+.rise{
+  display:inline-flex;align-items:center;gap:12px;margin-top:clamp(30px,5vh,48px);
+  padding:14px 22px;border:1px solid #35504F;background:transparent;color:var(--bone);
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;cursor:pointer;
+  transition:background .3s ease,border-color .3s ease,color .3s ease;
+}
+.rise:hover,.rise:focus-visible{background:rgba(95,224,190,.1);border-color:var(--phosphor);color:var(--phosphor)}
+.rise svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.4}
+
+footer{position:relative;z-index:2;border-top:1px solid rgba(34,56,59,.7);padding:26px 0 34px}
+footer .shell{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;line-height:2;letter-spacing:.1em;color:#5B6E69}
+footer .note{max-width:52ch}
+
+/* ===== 揭示动效 ===== */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-delay="1"]{transition-delay:.1s}
+.reveal[data-delay="2"]{transition-delay:.2s}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none}}
+
+:focus-visible{outline:1px solid var(--phosphor);outline-offset:3px}
+</style>
 </head>
 <body>
-    <div class="box">
-        <h1>🪄 魔法点击页</h1>
-        <div class="tip" id="msg">点击任意地方，触发惊喜！</div>
-        <div class="btn-group">
-            <button onclick="resetAll()">重置页面</button>
-            <button onclick="secret()">神秘彩蛋</button>
+
+<!-- ===== 固定背景：光柱 → 深渊 ===== -->
+<div class="stage" aria-hidden="true">
+  <div class="hero-media" id="heroMedia">
+    <img src="https://aka.doubaocdn.com/s/WvV5AL1S9V" alt="">
+  </div>
+  <canvas id="snow"></canvas>
+  <div class="veil" id="veil"></div>
+  <div class="grain"></div>
+</div>
+
+<canvas class="sonar-layer" id="sonar" aria-hidden="true"></canvas>
+
+<!-- ===== 导航 ===== -->
+<header class="nav">
+  <div class="mark"><b>ABYSS</b><span>深渊观测站</span></div>
+  <div class="nav-links">
+    <a href="#chapter-01">分层</a>
+    <a href="#chapter-04" data-hide-sm>发光</a>
+    <a href="#chapter-06" data-hide-sm>探测史</a>
+    <a href="#outro">档案结尾</a>
+    <button class="sound" id="soundBtn" type="button" aria-pressed="false" aria-label="开启深海环境声音">
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span id="soundLabel">开启声音</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== 左侧刻度仪 ===== -->
+<aside class="instrument" aria-hidden="true">
+  <div class="ruler" id="ruler">
+    <div class="marker" id="rulerMarker"></div>
+  </div>
+  <div class="readout">
+    <span class="cap">DEPTH</span>
+    <span class="depth"><span id="depthValue">0</span><small>M</small></span>
+    <span class="zone" id="zoneName">上层带 · 阳光带</span>
+    <span class="press" id="pressValue">1 atm</span>
+    <span class="echo-tag" id="echoTag"></span>
+  </div>
+</aside>
+
+<div class="hud" aria-hidden="true">
+  <i></i>
+  <span id="hudDepth">0 m</span>
+  <span id="hudPress" style="color:#8C9A94">1 atm</span>
+</div>
+
+<main>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero" id="top">
+    <div class="shell">
+      <div class="kicker">深海观测档案 · 编号 001 · 西太平洋</div>
+      <h1>向下，<br>直到<em>没有光</em>。</h1>
+      <div class="hero-sub">
+        <p>一次从海面到马里亚纳海沟底部的下潜记录。这页没有“下一页”按钮——继续往下滚，你的深度就会增加。</p>
+        <div class="coords">
+          11°22′N&nbsp;&nbsp;142°35′E<br>
+          目标&nbsp;&nbsp;10,935&nbsp;M
         </div>
+      </div>
+      <div class="scroll-cue"><span class="bar"></span>开始下潜</div>
+      <div class="sonar-hint">点击页面任意位置 · 发射一次声呐</div>
     </div>
+  </section>
 
-    <script>
-        const colors = [
-            "#ff9a9e","#fad0c4","#f6d365","#fda085",
-            "#a8edea","#fed6e3","#d299c2","#fef9d7",
-            "#89f7fe","#66a6ff","#ffecd2","#fcb69f"
-        ]
-        const texts = [
-            "今天也是超棒的一天✨",
-            "好运正在派送中📦",
-            "不要焦虑，一切顺利🍀",
-            "你闪闪发光哦🌟",
-            "吃好喝好，长生不老🍜",
-            "保持热爱，奔赴山海🌊",
-            "隐藏快乐+100",
-            "烦恼飞走啦~"
-        ]
+  <!-- ===== 第 00 章 · 0–200 m ===== -->
+  <section class="chapter" id="chapter-00">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 00 章</span><span class="rule"></span><span>0 – 200 M · 上层带</span></div>
+      <h2 class="reveal" data-delay="1">我们先失去的，<br><span class="thin">是颜色。</span></h2>
+      <div class="spread">
+        <div class="spread-text reveal" data-delay="2">
+          <p class="lede">水会吃掉光，而且是从红色开始吃的。</p>
+          <div class="body">
+            <p>下潜到 50 米，一个红番茄看起来像一块墨。到 100 米，橙色也消失了。到 200 米，你手里只剩下一片蓝。</p>
+            <p>这也是为什么深海生物大多是红的、透明的、或者黑得像影子——在只有蓝光的地方，<span class="accent">红色等于隐身</span>。</p>
+            <p>上层带只占海洋深度的一小部分，却养活了几乎整片海。浮游生物在这里把阳光做成食物，剩下的碎屑一路下沉，成为下面几千米唯一的口粮。</p>
+          </div>
+        </div>
+        <div class="spread-media reveal" data-delay="2">
+          <figure class="figure">
+            <div class="frame">
+              <svg viewBox="0 0 900 506" role="img" aria-label="光在水中的衰减示意图">
+                <defs>
+                  <linearGradient id="waterCol" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#2D7F83"/><stop offset=".34" stop-color="#10525A"/>
+                    <stop offset=".72" stop-color="#072527"/><stop offset="1" stop-color="#030C0E"/>
+                  </linearGradient>
+                  <radialGradient id="sun" cx="50%" cy="-8%" r="70%">
+                    <stop offset="0" stop-color="#BFEFE2" stop-opacity=".95"/>
+                    <stop offset="1" stop-color="#BFEFE2" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+                <rect width="900" height="506" fill="url(#waterCol)"/>
+                <g fill="url(#sun)">
+                  <polygon points="250,0 320,0 470,506 350,506"/>
+                  <polygon points="420,0 470,0 540,506 470,506"/>
+                  <polygon points="600,0 660,0 610,506 560,506"/>
+                </g>
+                <g font-family="JetBrains Mono, monospace" font-size="11" fill="#9FB6B0" letter-spacing="2">
+                  <line x1="0" y1="102" x2="900" y2="102" stroke="#5E8A84" stroke-opacity=".45" stroke-dasharray="8 6"/>
+                  <text x="18" y="94">200 M · 红光消失</text>
+                  <line x1="0" y1="215" x2="900" y2="215" stroke="#5E8A84" stroke-opacity=".35" stroke-dasharray="8 6"/>
+                  <text x="18" y="207">500 M · 只剩微弱蓝光</text>
+                  <line x1="0" y1="340" x2="900" y2="340" stroke="#5E8A84" stroke-opacity=".3" stroke-dasharray="8 6"/>
+                  <text x="18" y="332">1000 M · 视觉的尽头</text>
+                </g>
+              </svg>
+            </div>
+            <figcaption><span>图 01 / 光谱在水体中的衰减</span><span class="src">示意 · 非线性比例</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        // 随机颜色
-        function randomBg(){
-            const c = colors[Math.floor(Math.random()*colors.length)]
-            document.body.style.background = c
+  <!-- ===== 第 01 章 · 200–1000 m ===== -->
+  <section class="chapter" id="chapter-01">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 01 章</span><span class="rule"></span><span>200 – 1000 M · 微光层</span></div>
+      <h2 class="reveal" data-delay="1">最后一缕蓝，<br><span class="thin">刚好够看清轮廓。</span></h2>
+      <div class="spread flip">
+        <div class="spread-text reveal" data-delay="2">
+          <div class="body">
+            <p>微光层是海洋里最拥挤的地方。白天，成群的小鱼躲在这一层的暗处，避开上面看得见它们的捕食者；日落之后，整层生物一起上浮到表层进食，天亮前再退回去。</p>
+            <p>人类把这个动作叫<span class="accent">昼夜垂直迁移</span>——它是地球上规模最大的一次集体移动，每晚发生一次。</p>
+            <p>这里也第一次出现了发光。不是为了照亮什么，而是为了说点什么：求偶、警告、诱捕，或者在被咬住的一瞬间闪一下，赌对方会松口。</p>
+          </div>
+          <div class="stats reveal" data-delay="2">
+            <div>
+              <div class="num">≈ 76%</div>
+              <div class="lab">开阔水域的深海生物具备自身发光能力</div>
+            </div>
+            <div>
+              <div class="num">&lt; 1%</div>
+              <div class="lab">表层阳光能到达 200 米以下的份额</div>
+            </div>
+          </div>
+        </div>
+        <div class="spread-media reveal" data-delay="2">
+          <figure class="figure">
+            <div class="frame">
+              <img src="https://aka.doubaocdn.com/s/H8WkoAQudQ" alt="漆黑海水中发光的半透明水母，伞缘与触须呈青绿色磷光" loading="lazy">
+            </div>
+            <figcaption><span>图 02 / 发光水母，深度约 300 米</span><span class="src">观测影像</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 第 02 章 · 1000–4000 m ===== -->
+  <section class="chapter" id="chapter-02">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 02 章</span><span class="rule"></span><span>1000 – 4000 M · 深层带</span></div>
+      <h2 class="reveal" data-delay="1">阳光在这里结束。<br><span class="thin">生活在这里的人，都很省。</span></h2>
+      <div class="spread">
+        <div class="spread-text reveal" data-delay="2">
+          <div class="body">
+            <p>一千年以前，人们相信 1000 米以下是一片死水——没有光，没有食物，不可能有生命。</p>
+            <p>后来拖网从黑暗里拉上来一批东西：柔软的鱼、含水量超过九成的肌肉、慢到几乎不动的代谢。这里的生物不追求快，只追求<span class="accent">把一顿饭撑得更久</span>。</p>
+            <p>水温常年停在 4℃ 上下，压力是海面的 100 到 400 倍。在这样的水里，骨骼变得不划算，很多鱼干脆把自己变成了半透明的胶。</p>
+          </div>
+        </div>
+        <div class="spread-media reveal" data-delay="2">
+          <figure class="figure">
+            <div class="frame">
+              <img src="https://aka.doubaocdn.com/s/H4VkxYR5l9" alt="漆黑的深水中，一条深海鱼头顶的发光诱饵发出琥珀色光点" loading="lazy">
+            </div>
+            <figcaption><span>图 03 / 深渊发光鱼类，深度约 1,800 米</span><span class="src">观测影像</span></figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="profile reveal" data-delay="2">
+        <div class="head"><span>图 04 / 海沟横剖面</span><span id="profileReadout">当前深度 0 M</span></div>
+        <svg viewBox="0 0 900 430" role="img" aria-label="从大陆架到海沟轴部的海底横剖面，白线表示当前深度">
+          <defs>
+            <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#173437"/><stop offset="1" stop-color="#0A191C"/>
+            </linearGradient>
+            <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0C2A2E" stop-opacity=".9"/><stop offset="1" stop-color="#041114" stop-opacity="1"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="900" height="430" fill="url(#sea)"/>
+          <g stroke="#254A4C" stroke-width="1">
+            <line x1="58" y1="0" x2="58" y2="430"/><line x1="58" y1="20" x2="900" y2="20" stroke-dasharray="6 8" stroke-opacity=".7"/>
+            <text x="12" y="24" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">0 M</text>
+            <line x1="58" y1="95" x2="72" y2="95"/><text x="12" y="99" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">2000</text>
+            <line x1="58" y1="170" x2="72" y2="170"/><text x="12" y="174" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">4000</text>
+            <line x1="58" y1="245" x2="72" y2="245"/><text x="12" y="249" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">6000</text>
+            <line x1="58" y1="320" x2="72" y2="320"/><text x="12" y="324" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">8000</text>
+            <line x1="58" y1="395" x2="72" y2="395"/><text x="9" y="399" font-family="JetBrains Mono, monospace" font-size="9" fill="#6C837D">10000</text>
+          </g>
+          <path d="M58 20 C120 24 150 40 210 58 C260 74 300 120 340 170 C380 220 410 260 440 300 C480 350 505 392 548 400 C580 405 596 372 630 330 C670 275 700 210 745 150 C790 92 840 44 900 26"
+                fill="none" stroke="#3A6164" stroke-width="1.2" stroke-opacity=".85"/>
+          <path d="M58 20 C120 24 150 40 210 58 C260 74 300 120 340 170 C380 220 410 260 440 300 C480 350 505 392 548 400 C580 405 596 372 630 330 C670 275 700 210 745 150 C790 92 840 44 900 26 L900 430 L58 430 Z"
+                fill="url(#rock)" fill-opacity=".55"/>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#7E948E" letter-spacing="1">
+            <text x="176" y="52">大陆坡</text>
+            <text x="520" y="424">海沟轴部 · 约 11,000 M</text>
+            <text x="756" y="140" text-anchor="end">岛弧</text>
+          </g>
+          <line id="profileDepthLine" x1="58" y1="20" x2="900" y2="20" stroke="#5FE0BE" stroke-width="1.4" stroke-opacity=".95"/>
+          <line id="profileDepthDashes" x1="58" y1="20" x2="900" y2="20" stroke="#5FE0BE" stroke-width="1.4" stroke-opacity=".95" stroke-dasharray="4 10"/>
+          <circle id="profileDot" cx="548" cy="20" r="5" fill="#5FE0BE"/>
+          <circle id="profileDotHalo" cx="548" cy="20" r="11" fill="none" stroke="#5FE0BE" stroke-opacity=".35"/>
+        </svg>
+        <div class="legend">
+          <span><i class="dot"></i>你此刻的深度</span>
+          <span><i></i>海沟轴部（约 11,000 m）</span>
+          <span><i></i>纵向比例已压缩</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 第 03 章 · 4000–6000 m ===== -->
+  <section class="chapter" id="chapter-03">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 03 章</span><span class="rule"></span><span>4000 – 6000 M · 深渊带</span></div>
+      <h2 class="reveal" data-delay="1">深渊带，<br><span class="thin">是海底最辽阔的一层。</span></h2>
+      <div class="body reveal" data-delay="2" style="max-width:40em">
+        <p>它铺在大部分洋底之上，平坦、寒冷、安静。落下来的东西不多：上层生物的尸体、粪便、被水流带下来的细颗粒。这一层靠“下沉的残渣”活着，一整年的收入可能只够一顿饭。</p>
+        <p>下面三个数字会跟着你的滚动改变。它们不是装饰——每往下 10 米，水压就多加一个大气压。</p>
+      </div>
+
+      <div class="console reveal" data-delay="2">
+        <div class="cell">
+          <div class="cap">PRESSURE</div>
+          <div class="val"><span id="conPress">1</span><small>atm</small></div>
+          <div class="note">约等于海面大气的倍数</div>
+          <div class="track amber"><div class="fill" id="barPress"></div></div>
+        </div>
+        <div class="cell">
+          <div class="cap">TEMPERATURE</div>
+          <div class="val"><span id="conTemp">24</span><small>°C</small></div>
+          <div class="note">越过约 1000 米后趋于稳定</div>
+          <div class="track"><div class="fill" id="barTemp"></div></div>
+        </div>
+        <div class="cell">
+          <div class="cap">SUNLIGHT</div>
+          <div class="val"><span id="conLight">100</span><small>%</small></div>
+          <div class="note">相对表层光照，约在 1000 米归零</div>
+          <div class="track"><div class="fill" id="barLight"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 第 04 章 · 发光实验室 ===== -->
+  <section class="chapter" id="chapter-04">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 04 章</span><span class="rule"></span><span>4,200 M · 观测实验</span></div>
+      <h2 class="reveal" data-delay="1">光没有消失，<br><span class="thin">它换了个来源。</span></h2>
+      <div class="body reveal" data-delay="2" style="max-width:40em">
+        <p>在阳光到不了的地方，光从身体里长出来。这些冷光效率极高——几乎不发热，只发光。下面的黑暗里藏着一群这样的生物。</p>
+      </div>
+
+      <div class="lab reveal" data-delay="2" id="lab">
+        <div class="lab-top">
+          <span>DARK FIELD / 光标即探照灯</span>
+          <span class="counter">已点亮 <strong id="litCount">0</strong> / 80</span>
+        </div>
+        <canvas id="bioCanvas" aria-label="在黑暗中移动光标可点亮发光生物"></canvas>
+        <div class="hint" id="labHint">移动光标 · 把它们唤醒</div>
+      </div>
+      <p class="reveal" data-delay="2" style="margin:16px 0 0;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5E736D">图 05 / 磷光生物分布模拟 · 非真实密度 · 开启声音可听见每一次点亮</p>
+    </div>
+  </section>
+
+  <!-- ===== 第 05 章 · 6000–10935 m ===== -->
+  <section class="chapter" id="chapter-05">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 05 章</span><span class="rule"></span><span>6000 – 10,935 M · 超深渊带</span></div>
+      <h2 class="reveal" data-delay="1">只有极少数地方，<br><span class="thin">比六千米更深。</span></h2>
+      <div class="spread flip">
+        <div class="spread-text reveal" data-delay="2">
+          <div class="body">
+            <p>它们叫海沟——板块俯冲时在地壳上撕开的长缝。马里亚纳海沟全长约 2,550 公里，最深处叫挑战者深渊，深度接近 11,000 米。</p>
+            <p>那里的压强，相当于每一平方厘米上压着一辆小汽车。钢铁会变形，玻璃会碎，但钩虾还在沉积物上爬，微生物还在慢慢分解。</p>
+            <p>从海面到沟底，是地球上最长的一次垂直旅行。<span class="accent">你刚才用滚动条走完了它。</span></p>
+          </div>
+        </div>
+        <div class="spread-media reveal" data-delay="2">
+          <figure class="figure">
+            <div class="frame">
+              <img src="https://aka.doubaocdn.com/s/BBxS2EqOZE" alt="超深渊带海沟底部的灰白沉积物，探测器的一束冷光扫过沟壁" loading="lazy">
+            </div>
+            <figcaption><span>图 06 / 海沟底部，探测灯照明</span><span class="src">观测影像</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 第 06 章 · 探测史 ===== -->
+  <section class="chapter" id="chapter-06">
+    <div class="shell">
+      <div class="eyebrow reveal"><span class="idx">第 06 章</span><span class="rule"></span><span>1960 – 今 · 抵达记录</span></div>
+      <h2 class="reveal" data-delay="1">四次抵达，<br><span class="thin">都很短。</span></h2>
+      <div class="timeline">
+        <div class="tl-row reveal">
+          <div class="year">1960<span>约 10,916 M</span></div>
+          <div class="txt">
+            <h3>的里雅斯特号 · 人类第一次站在沟底</h3>
+            <p>雅克·皮卡德与唐·沃尔什乘深潜器下潜到挑战者深渊附近，停留约二十分钟。舷窗外扬起的沉积物在灯光里慢慢落下，他们看见了一条鱼。</p>
+          </div>
+        </div>
+        <div class="tl-row reveal">
+          <div class="year">2012<span>约 10,908 M</span></div>
+          <div class="txt">
+            <h3>深海挑战者号 · 一个人，三小时</h3>
+            <p>詹姆斯·卡梅隆独自下潜，在沟底拍摄了数小时。他后来说，那里像另一个星球：安静、荒芜，除了自己的呼吸没有别的声音。</p>
+          </div>
+        </div>
+        <div class="tl-row reveal">
+          <div class="year">2019<span>约 10,925 M</span></div>
+          <div class="txt">
+            <h3>极限因子号 · 把“到达”变成常规</h3>
+            <p>维克多·维斯科沃与团队多次下潜至海沟底部，并带着传感器做系统测绘。抵达不再是终点，开始变成取样。</p>
+          </div>
+        </div>
+        <div class="tl-row reveal">
+          <div class="year">NOW<span>每年 · 多地</span></div>
+          <div class="txt">
+            <h3>无人潜航器 · 不载人，长时间</h3>
+            <p>无人平台开始在深渊里连续工作：测深、采样、录像。人类不必亲自下去，也能把底部的形状一点点补齐。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 结尾 ===== -->
+  <section class="outro" id="outro">
+    <div class="shell">
+      <p class="big reveal">我们测绘了月球背面，<br>却只绘制了大约<b>四分之一</b>的海底。</p>
+      <p class="reveal" data-delay="1">每一次下潜，都只是往未知里再挪一格。这个页面到此为止——但海没有。</p>
+      <button class="rise reveal" type="button" id="riseBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        回到海面
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="shell">
+    <div>ABYSS STATION / 深渊观测站<br>单页观测档案 · 2026</div>
+    <div class="note">深度、压力、温度为科普性近似换算（每 10 米约 +1 个大气压），非实测数据；历史深度取公开资料的约值。页面影像为视觉示意。</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var MAX_DEPTH = 10935;
+
+  /* ---------- 状态与格式化 ---------- */
+  var depthCur = 0, depthTarget = 0;
+  var $ = function(id){ return document.getElementById(id); };
+
+  function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
+
+  function zoneOf(d){
+    if (d < 200) return "上层带 · 阳光带";
+    if (d < 1000) return "微光层";
+    if (d < 4000) return "深层带";
+    if (d < 6000) return "深渊带";
+    return "超深渊带 · 海沟";
+  }
+
+  /* 温度分段锚点（表层 → 深渊趋于稳定） */
+  var tempAnchors = [[0,24],[100,22],[200,16],[500,8],[1000,4.5],[2000,3],[4000,1.9],[6000,1.6],[10935,1.3]];
+  function tempOf(d){
+    for (var i=1;i<tempAnchors.length;i++){
+      var a = tempAnchors[i-1], b = tempAnchors[i];
+      if (d <= b[0]){
+        var t = (d - a[0]) / (b[0] - a[0]);
+        return a[1] + (b[1]-a[1]) * Math.max(0, Math.min(1, t));
+      }
+    }
+    return tempAnchors[tempAnchors.length-1][1];
+  }
+  function lightOf(d){
+    if (d >= 1000) return 0;
+    if (d <= 0) return 100;
+    return 100 * Math.pow(1 - d/1000, 5.2);
+  }
+
+  /* ---------- 深度标尺刻度 ---------- */
+  var ruler = $("ruler"), marker = $("rulerMarker");
+  if (ruler){
+    for (var m=0; m<=11000; m+=500){
+      var tick = document.createElement("div");
+      var major = (m % 2000 === 0);
+      tick.className = "tick" + (major ? " major" : "");
+      tick.style.top = (m / 11000 * 100) + "%";
+      ruler.appendChild(tick);
+      if (major){
+        var lab = document.createElement("div");
+        lab.className = "tick-label";
+        lab.textContent = m === 0 ? "海面" : (m/1000) + "k";
+        lab.style.top = (m / 11000 * 100) + "%";
+        ruler.appendChild(lab);
+      }
+    }
+  }
+
+  /* ---------- 剖面图坐标 ---------- */
+  var pLine = $("profileDepthLine"), pDashes = $("profileDepthDashes"),
+      pDot = $("profileDot"), pDotHalo = $("profileDotHalo"), pRead = $("profileReadout");
+  var PROFILE_TOP = 20, PROFILE_H = 380;
+
+  function updateProfile(d){
+    var y = PROFILE_TOP + (Math.min(d, 11000) / 11000) * PROFILE_H;
+    if (pLine){ pLine.setAttribute("y1", y); pLine.setAttribute("y2", y); }
+    if (pDashes){ pDashes.setAttribute("y1", y); pDashes.setAttribute("y2", y); }
+    if (pDot){ pDot.setAttribute("cy", y); pDotHalo.setAttribute("cy", y); }
+    if (pRead) pRead.textContent = "当前深度 " + fmt(d) + " M";
+  }
+
+  /* ---------- 仪表刷新 ---------- */
+  var depthValue = $("depthValue"), zoneName = $("zoneName"), pressValue = $("pressValue"),
+      hudDepth = $("hudDepth"), hudPress = $("hudPress"),
+      conPress = $("conPress"), conTemp = $("conTemp"), conLight = $("conLight"),
+      barPress = $("barPress"), barTemp = $("barTemp"), barLight = $("barLight");
+
+  function render(){
+    var d = depthCur;
+    var press = 1 + d / 10.05;     // 近似：每 10 米约 +1 atm
+    var temp = tempOf(d);
+    var light = lightOf(d);
+
+    if (depthValue) depthValue.textContent = fmt(d);
+    if (zoneName) zoneName.textContent = zoneOf(d);
+    if (pressValue) pressValue.textContent = fmt(press) + " atm";
+    if (marker) marker.style.top = (Math.min(d, MAX_DEPTH) / MAX_DEPTH * 100) + "%";
+
+    if (hudDepth) hudDepth.textContent = fmt(d) + " m";
+    if (hudPress) hudPress.textContent = fmt(press) + " atm";
+
+    if (conPress) conPress.textContent = fmt(press);
+    if (conTemp) conTemp.textContent = temp.toFixed(1);
+    if (conLight) conLight.textContent = (light < 0.1 ? "0" : light.toFixed(1));
+    if (barPress) barPress.style.width = Math.min(100, (press / 1090) * 100) + "%";
+    if (barTemp) barTemp.style.width = Math.min(100, (temp / 26) * 100) + "%";
+    if (barLight) barLight.style.width = Math.max(0, Math.min(100, light)) + "%";
+
+    updateProfile(d);
+    if (typeof AudioKit !== "undefined") AudioKit.followDepth(d);
+  }
+
+  /* ---------- 声音：深海环境音（Web Audio 实时合成） ---------- */
+  var AudioKit = (function(){
+    var ctx = null, master = null, lp = null, drone = null, noiseGain = null;
+    var on = false, pingTimer = null, lastBlipT = 0, lastDepth = -1;
+
+    function noiseBuffer(c){
+      var sr = c.sampleRate, len = Math.floor(sr * 4);
+      var buf = c.createBuffer(1, len, sr), data = buf.getChannelData(0), last = 0;
+      for (var i = 0; i < len; i++){
+        var white = Math.random() * 2 - 1;
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.2;
+      }
+      return buf;
+    }
+
+    function init(){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC();
+
+      master = ctx.createGain();
+      master.gain.value = 0;
+      master.connect(ctx.destination);
+
+      /* 低频水体：两层正弦 + 一层三角波，产生缓慢拍频 */
+      lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 170;
+      lp.Q.value = 0.6;
+      lp.connect(master);
+
+      drone = ctx.createGain();
+      drone.gain.value = 0.22;
+      drone.connect(lp);
+
+      var o1 = ctx.createOscillator();
+      o1.type = "sine"; o1.frequency.value = 52;
+      o1.connect(drone); o1.start();
+
+      var o2 = ctx.createOscillator();
+      o2.type = "sine"; o2.frequency.value = 50.3;
+      var g2 = ctx.createGain(); g2.gain.value = 0.75;
+      o2.connect(g2); g2.connect(drone); o2.start();
+
+      var o3 = ctx.createOscillator();
+      o3.type = "triangle"; o3.frequency.value = 103.5;
+      var g3 = ctx.createGain(); g3.gain.value = 0.16;
+      o3.connect(g3); g3.connect(lp); o3.start();
+
+      /* 水流噪声：布朗噪声经低通 */
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx);
+      src.loop = true;
+      var nlp = ctx.createBiquadFilter();
+      nlp.type = "lowpass"; nlp.frequency.value = 300; nlp.Q.value = 0.4;
+      noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.45;
+      src.connect(nlp); nlp.connect(noiseGain); noiseGain.connect(master);
+      src.start();
+      return true;
+    }
+
+    /* 声呐脉冲：间隔不定，随深度降调 */
+    function ping(){
+      if (!on || !ctx) return;
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(), g = ctx.createGain();
+      var f = 640 - Math.min(300, depthCur * 0.025);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(f, t);
+      osc.frequency.exponentialRampToValueAtTime(f * 0.68, t + 1.2);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.2, t + 0.035);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+      osc.connect(g); g.connect(master);
+      osc.start(t); osc.stop(t + 1.7);
+      pingTimer = setTimeout(ping, 6200 + Math.random() * 9800);
+    }
+
+    function followDepth(d){
+      if (!on || !ctx) return;
+      if (Math.abs(d - lastDepth) < 40) return;
+      lastDepth = d;
+      var f = 175 - (d / MAX_DEPTH) * 110;
+      lp.frequency.setTargetAtTime(f, ctx.currentTime, 0.6);
+      master.gain.setTargetAtTime(0.42 - (d / MAX_DEPTH) * 0.1, ctx.currentTime, 0.8);
+    }
+
+    /* 生物发光唤醒时的玻璃质回响 */
+    function blip(){
+      if (!on || !ctx) return;
+      if (ctx.currentTime - lastBlipT < 0.07) return;
+      lastBlipT = ctx.currentTime;
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 1500; bp.Q.value = 1.4;
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(700 + Math.random() * 480, t);
+      osc.frequency.exponentialRampToValueAtTime(1450 + Math.random() * 420, t + 0.08);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.05, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      osc.connect(bp); bp.connect(g); g.connect(master);
+      osc.start(t); osc.stop(t + 0.24);
+    }
+
+    function setOn(state){
+      if (state && !ctx && !init()) return false;
+      on = state;
+      if (ctx){
+        if (ctx.state === "suspended") ctx.resume();
+        master.gain.cancelScheduledValues(ctx.currentTime);
+        master.gain.setTargetAtTime(on ? 0.42 : 0, ctx.currentTime, 0.4);
+      }
+      if (pingTimer){ clearTimeout(pingTimer); pingTimer = null; }
+      if (on){
+        pingTimer = setTimeout(ping, 700);
+        document.addEventListener("visibilitychange", onVisibility);
+      } else {
+        document.removeEventListener("visibilitychange", onVisibility);
+      }
+      return true;
+    }
+
+    /* 手动声呐：短促、更亮的一声 */
+    function pingNow(){
+      if (!on || !ctx) return;
+      var t = ctx.currentTime;
+      var f0 = 900 - Math.min(360, depthCur * 0.03);
+
+      var o1 = ctx.createOscillator(), g1 = ctx.createGain();
+      o1.type = "sine";
+      o1.frequency.setValueAtTime(f0, t);
+      o1.frequency.exponentialRampToValueAtTime(f0 * 0.55, t + 0.85);
+      g1.gain.setValueAtTime(0.0001, t);
+      g1.gain.linearRampToValueAtTime(0.22, t + 0.02);
+      g1.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+      o1.connect(g1); g1.connect(master);
+      o1.start(t); o1.stop(t + 1.1);
+
+      var o2 = ctx.createOscillator(), g2b = ctx.createGain();
+      o2.type = "sine";
+      o2.frequency.setValueAtTime(f0 * 1.9, t);
+      o2.frequency.exponentialRampToValueAtTime(f0 * 1.05, t + 0.8);
+      g2b.gain.setValueAtTime(0.0001, t);
+      g2b.gain.linearRampToValueAtTime(0.045, t + 0.02);
+      g2b.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+      o2.connect(g2b); g2b.connect(master);
+      o2.start(t); o2.stop(t + 0.9);
+    }
+
+    function onVisibility(){
+      if (!ctx) return;
+      if (document.hidden && ctx.state === "running") ctx.suspend();
+      if (!document.hidden && ctx.state === "suspended") ctx.resume();
+    }
+
+    return { setOn: setOn, followDepth: followDepth, blip: blip, pingNow: pingNow, isOn: function(){ return on; } };
+  })();
+
+  var soundBtn = $("soundBtn"), soundLabel = $("soundLabel");
+  if (soundBtn){
+    soundBtn.addEventListener("click", function(){
+      var next = !AudioKit.isOn();
+      if (!AudioKit.setOn(next)){ soundLabel.textContent = "不支持音频"; return; }
+      soundBtn.setAttribute("aria-pressed", next ? "true" : "false");
+      soundBtn.setAttribute("aria-label", next ? "关闭深海环境声音" : "开启深海环境声音");
+      soundLabel.textContent = next ? "关闭声音" : "开启声音";
+    });
+  }
+
+  /* ---------- 手动声呐 ---------- */
+  var sonarLayer = $("sonar");
+  var sonarCtx = sonarLayer ? sonarLayer.getContext("2d") : null;
+  var sonarW = 0, sonarH = 0, sonarDpr = Math.min(window.devicePixelRatio || 1, 2);
+  var rings = [], sonarRaf = 0, echoTimer = 0;
+  var instrumentEl = document.querySelector(".instrument");
+  var echoTag = $("echoTag");
+  var hudEl = document.querySelector(".hud");
+
+  function sizeSonar(){
+    if (!sonarLayer || !sonarCtx) return;
+    sonarW = window.innerWidth;
+    sonarH = window.innerHeight;
+    sonarLayer.width = sonarW * sonarDpr;
+    sonarLayer.height = sonarH * sonarDpr;
+    sonarLayer.style.width = sonarW + "px";
+    sonarLayer.style.height = sonarH + "px";
+    sonarCtx.setTransform(sonarDpr, 0, 0, sonarDpr, 0, 0);
+    sonarCtx.clearRect(0, 0, sonarW, sonarH);
+  }
+
+  function drawSonar(now){
+    sonarCtx.clearRect(0, 0, sonarW, sonarH);
+    var alive = false;
+    for (var i = rings.length - 1; i >= 0; i--){
+      var r = rings[i];
+      var p = (now - r.t0) / r.dur;
+      if (p >= 1 || p < 0){ rings.splice(i, 1); continue; }
+      alive = true;
+      var ease = 1 - Math.pow(1 - p, 2);
+      var R = 12 + ease * r.max;
+      var a = Math.pow(1 - p, 2);
+
+      sonarCtx.beginPath();
+      sonarCtx.strokeStyle = "rgba(95,224,190," + (a * 0.6).toFixed(3) + ")";
+      sonarCtx.lineWidth = 1.3;
+      sonarCtx.arc(r.x, r.y, R, 0, Math.PI * 2);
+      sonarCtx.stroke();
+
+      sonarCtx.beginPath();
+      sonarCtx.strokeStyle = "rgba(95,224,190," + (a * 0.2).toFixed(3) + ")";
+      sonarCtx.lineWidth = 1;
+      sonarCtx.arc(r.x, r.y, R * 0.58, 0, Math.PI * 2);
+      sonarCtx.stroke();
+
+      if (p < 0.2){
+        sonarCtx.beginPath();
+        sonarCtx.fillStyle = "rgba(165,246,222," + ((1 - p / 0.2) * 0.55).toFixed(3) + ")";
+        sonarCtx.arc(r.x, r.y, 4, 0, Math.PI * 2);
+        sonarCtx.fill();
+      }
+    }
+    if (alive){
+      sonarRaf = requestAnimationFrame(drawSonar);
+    } else {
+      sonarRaf = 0;
+      sonarCtx.clearRect(0, 0, sonarW, sonarH);
+    }
+  }
+
+  function echoReaction(){
+    var trip = 2 * depthCur / 1500;   /* 声速约 1500 m/s，往返 */
+    if (echoTag){
+      echoTag.textContent = "回波 · " + (trip < 0.1 ? "<0.1" : trip.toFixed(1)) + " s";
+      echoTag.classList.add("show");
+    }
+    if (instrumentEl) instrumentEl.classList.add("echo");
+    if (hudEl) hudEl.classList.add("echo");
+    clearTimeout(echoTimer);
+    echoTimer = setTimeout(function(){
+      if (echoTag) echoTag.classList.remove("show");
+      if (instrumentEl) instrumentEl.classList.remove("echo");
+      if (hudEl) hudEl.classList.remove("echo");
+    }, 1700);
+  }
+
+  function launchSonar(x, y){
+    if (!reduce){
+      var maxR = Math.max(
+        Math.hypot(x, y),
+        Math.hypot(sonarW - x, y),
+        Math.hypot(x, sonarH - y),
+        Math.hypot(sonarW - x, sonarH - y)
+      ) * 0.86;
+      rings.push({ x:x, y:y, t0:performance.now(), dur:1400, max:maxR });
+      if (rings.length > 4) rings.shift();
+      if (!sonarRaf) sonarRaf = requestAnimationFrame(drawSonar);
+    }
+    if (typeof AudioKit !== "undefined") AudioKit.pingNow();
+    echoReaction();
+  }
+
+  if (sonarLayer){
+    sizeSonar();
+    window.addEventListener("resize", sizeSonar);
+    document.addEventListener("click", function(e){
+      var t = e.target;
+      if (t && t.closest && t.closest("a,button,[role='button'],input,textarea,select,label")) return;
+      launchSonar(e.clientX, e.clientY);
+    });
+  }
+
+  /* ---------- 滚动 → 深度 ---------- */
+  var heroMedia = $("heroMedia"), veil = $("veil");
+  var scrollY = window.scrollY || window.pageYOffset;
+
+  function computeTarget(){
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var p = max > 0 ? (window.scrollY / max) : 0;
+    p = Math.max(0, Math.min(1, p));
+    depthTarget = p * MAX_DEPTH;
+
+    /* 光柱随下潜淡出 */
+    var fade = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.92));
+    if (heroMedia) heroMedia.style.opacity = (0.06 + 0.94 * fade).toFixed(3);
+    if (veil) veil.style.opacity = (p * 0.32).toFixed(3);
+  }
+
+  var ticking = false;
+  window.addEventListener("scroll", function(){
+    scrollY = window.scrollY;
+    if (!ticking){ ticking = true; requestAnimationFrame(function(){ computeTarget(); ticking = false; }); }
+  }, { passive:true });
+  window.addEventListener("resize", computeTarget);
+
+  function loop(){
+    depthCur += (depthTarget - depthCur) * (reduce ? 1 : 0.14);
+    if (Math.abs(depthTarget - depthCur) < 0.4) depthCur = depthTarget;
+    render();
+    requestAnimationFrame(loop);
+  }
+  computeTarget();
+  depthCur = depthTarget;
+  render();
+  requestAnimationFrame(loop);
+
+  /* ---------- 海洋雪 ---------- */
+  var snow = $("snow");
+  if (snow){
+    var sctx = snow.getContext("2d");
+    var flakes = [], SW = 0, SH = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function sizeSnow(){
+      SW = window.innerWidth; SH = window.innerHeight;
+      snow.width = SW * dpr; snow.height = SH * dpr;
+      snow.style.width = SW + "px"; snow.style.height = SH + "px";
+      sctx.setTransform(dpr,0,0,dpr,0,0);
+      var count = SW < 700 ? 38 : 90;
+      flakes = [];
+      for (var i=0;i<count;i++){
+        flakes.push({
+          x: Math.random()*SW, y: Math.random()*SH,
+          r: 0.4 + Math.random()*1.7,
+          vy: 0.15 + Math.random()*0.55,
+          sway: Math.random()*Math.PI*2,
+          amp: 0.4 + Math.random()*1.4,
+          a: 0.05 + Math.random()*0.16,
+          glow: Math.random() < 0.08
+        });
+      }
+    }
+    sizeSnow();
+    window.addEventListener("resize", sizeSnow);
+
+    function drawSnow(){
+      sctx.clearRect(0,0,SW,SH);
+      for (var i=0;i<flakes.length;i++){
+        var f = flakes[i];
+        f.y += f.vy; f.sway += 0.004;
+        f.x += Math.sin(f.sway) * f.amp * 0.12;
+        if (f.y > SH + 4){ f.y = -4; f.x = Math.random()*SW; }
+        if (f.glow){
+          var g = sctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*5);
+          g.addColorStop(0,"rgba(120,236,206,"+(f.a*1.5)+")");
+          g.addColorStop(1,"rgba(120,236,206,0)");
+          sctx.fillStyle = g;
+          sctx.beginPath(); sctx.arc(f.x,f.y,f.r*5,0,Math.PI*2); sctx.fill();
         }
-        // 随机文字
-        function randomText(){
-            const t = texts[Math.floor(Math.random()*texts.length)]
-            document.getElementById("msg").innerText = t
+        sctx.fillStyle = "rgba(190,220,212,"+f.a+")";
+        sctx.beginPath(); sctx.arc(f.x,f.y,f.r,0,Math.PI*2); sctx.fill();
+      }
+      requestAnimationFrame(drawSnow);
+    }
+    if (reduce){
+      sctx.clearRect(0,0,SW,SH);
+    } else {
+      requestAnimationFrame(drawSnow);
+    }
+  }
+
+  /* ---------- 发光实验室 ---------- */
+  var lab = $("lab"), bio = $("bioCanvas"), labHint = $("labHint"), litCountEl = $("litCount");
+  if (lab && bio){
+    var bctx = bio.getContext("2d");
+    var bioW = 0, bioH = 0, bdpr = Math.min(window.devicePixelRatio || 1, 2);
+    var orgs = [], pointer = { x:-999, y:-999, active:false }, lit = 0, activeLoop = false, rafId = 0;
+
+    function sizeBio(){
+      bioW = bio.clientWidth; bioH = bio.clientHeight;
+      bio.width = bioW * bdpr; bio.height = bioH * bdpr;
+      bctx.setTransform(bdpr,0,0,bdpr,0,0);
+      orgs = [];
+      var n = 80;
+      for (var i=0;i<n;i++){
+        orgs.push({
+          x: 0.06*bioW + Math.random()*0.88*bioW,
+          y: 0.14*bioH + Math.random()*0.74*bioH,
+          r: 1.6 + Math.random()*3.4,
+          phase: Math.random()*Math.PI*2,
+          spd: 0.4 + Math.random()*0.9,
+          hue: Math.random() < 0.12 ? 34 : (158 + Math.random()*26),
+          woken: false,
+          level: 0,
+          drift: 0.2 + Math.random()*0.5
+        });
+      }
+      lit = 0; if (litCountEl) litCountEl.textContent = "0";
+    }
+
+    function wake(){
+      if (!pointer.active) return;
+      for (var i=0;i<orgs.length;i++){
+        var o = orgs[i];
+        var dx = o.x - pointer.x, dy = o.y - pointer.y;
+        var d2 = dx*dx + dy*dy;
+        if (d2 < 78*78){
+          o.level = Math.min(1, o.level + 0.12);
+          if (!o.woken){ o.woken = true; lit++; if (litCountEl) litCountEl.textContent = lit;
+            if (typeof AudioKit !== "undefined") AudioKit.blip();
+          }
         }
-        // 星星
-        function createStar(x,y){
-            const s = document.createElement("div")
-            s.className="star"
-            s.innerText="★"
-            s.style.left=x+"px"
-            s.style.top=y+"px"
-            s.style.setProperty('--tx',(Math.random()-0.5)*120+"px")
-            s.style.setProperty('--ty',(Math.random()-0.5)*120+"px")
-            document.body.appendChild(s)
-            setTimeout(()=>s.remove(),800)
+      }
+    }
+
+    function drawBio(t){
+      bctx.fillStyle = "#020708";
+      bctx.fillRect(0,0,bioW,bioH);
+
+      /* 极淡的探照灯轨迹 */
+      if (pointer.active){
+        var grad = bctx.createRadialGradient(pointer.x,pointer.y,0,pointer.x,pointer.y,120);
+        grad.addColorStop(0,"rgba(95,224,190,0.10)");
+        grad.addColorStop(1,"rgba(95,224,190,0)");
+        bctx.fillStyle = grad;
+        bctx.beginPath(); bctx.arc(pointer.x,pointer.y,120,0,Math.PI*2); bctx.fill();
+      }
+
+      for (var i=0;i<orgs.length;i++){
+        var o = orgs[i];
+        var pulse = 0.5 + 0.5*Math.sin(t*0.001*o.spd + o.phase);
+        /* 未被唤醒时只留极微弱呼吸，唤醒后衰减 */
+        if (!o.woken){
+          o.level = Math.max(0, o.level - 0.004);
+        } else {
+          o.level = Math.max(0.06, o.level - 0.0015);
         }
-        // 点击事件
-        document.body.onclick = (e)=>{
-            randomBg()
-            randomText()
-            createStar(e.clientX,e.clientY)
-        }
-        function resetAll(){
-            document.body.style.background="#89f7fe"
-            document.getElementById("msg").innerText="点击任意地方，触发惊喜！"
-        }
-        function secret(){
-            alert("🎉 恭喜触发彩蛋：你是一个有趣的人！")
-        }
-        randomBg()
-    </script>
+        var lv = Math.max(o.level, 0.02 + 0.03*pulse);
+        var col = o.hue > 80 ? "95,224,190" : "233,164,92";
+        var R = o.r * (1 + lv*1.6);
+
+        var g = bctx.createRadialGradient(o.x,o.y,0,o.x,o.y,R*7);
+        g.addColorStop(0,"rgba("+col+","+(0.45*lv+0.04)+")");
+        g.addColorStop(0.45,"rgba("+col+","+(0.10*lv)+")");
+        g.addColorStop(1,"rgba("+col+",0)");
+        bctx.fillStyle = g;
+        bctx.beginPath(); bctx.arc(o.x,o.y,R*7,0,Math.PI*2); bctx.fill();
+
+        bctx.fillStyle = "rgba("+col+","+(0.55+0.4*lv)+")";
+        bctx.beginPath(); bctx.arc(o.x,o.y,R*0.7,0,Math.PI*2); bctx.fill();
+      }
+
+      wake();
+      if (activeLoop) rafId = requestAnimationFrame(drawBio);
+    }
+
+    function pointAt(e){
+      var rect = bio.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+      pointer.active = true;
+      if (labHint && !labHint.classList.contains("gone")) labHint.classList.add("gone");
+    }
+
+    bio.addEventListener("pointermove", function(e){ pointAt(e); }, { passive:true });
+    bio.addEventListener("pointerdown", function(e){ pointAt(e); }, { passive:true });
+    bio.addEventListener("pointerleave", function(){ pointer.active = false; });
+
+    sizeBio();
+    window.addEventListener("resize", sizeBio);
+
+    if (reduce){
+      /* 静态呈现：不跑动画，直接画出被唤醒后的图 */
+      orgs.forEach(function(o){ o.woken = true; o.level = 0.55; });
+      lit = orgs.length;
+      if (litCountEl) litCountEl.textContent = lit;
+      drawStatic();
+    } else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if (en.isIntersecting && !activeLoop){
+            activeLoop = true;
+            rafId = requestAnimationFrame(drawBio);
+          } else if (!en.isIntersecting && activeLoop){
+            activeLoop = false;
+            cancelAnimationFrame(rafId);
+          }
+        });
+      }, { threshold: 0.12 });
+      io.observe(lab);
+    }
+
+    function drawStatic(){
+      bctx.fillStyle = "#020708";
+      bctx.fillRect(0,0,bioW,bioH);
+      orgs.forEach(function(o){
+        var g = bctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r*7);
+        g.addColorStop(0,"rgba(95,224,190,0.5)");
+        g.addColorStop(1,"rgba(95,224,190,0)");
+        bctx.fillStyle = g;
+        bctx.beginPath(); bctx.arc(o.x,o.y,o.r*7,0,Math.PI*2); bctx.fill();
+        bctx.fillStyle = "rgba(150,240,215,0.9)";
+        bctx.beginPath(); bctx.arc(o.x,o.y,o.r*0.8,0,Math.PI*2); bctx.fill();
+      });
+    }
+  }
+
+  /* ---------- 揭示 ---------- */
+  if ("IntersectionObserver" in window && !reduce){
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.classList.add("in"); ro.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    var items = document.querySelectorAll(".reveal");
+    for (var i=0;i<items.length;i++) ro.observe(items[i]);
+  } else {
+    var all = document.querySelectorAll(".reveal");
+    for (var j=0;j<all.length;j++) all[j].classList.add("in");
+  }
+
+  /* ---------- 回到海面 ---------- */
+  var rise = $("riseBtn");
+  if (rise){
+    rise.addEventListener("click", function(){
+      window.scrollTo({ top:0, behavior: reduce ? "auto" : "smooth" });
+    });
+  }
+})();
+</script>
 </body>
 </html>
