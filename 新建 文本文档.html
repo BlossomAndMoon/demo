@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 趣味魔法页面</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
+        body{
+            min-height:100vh;
+            transition: background 0.4s ease;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+        }
+        .star{
+            position:absolute;
+            pointer-events:none;
+            color:#fff;
+            font-size:24px;
+            animation:fly 0.8s forwards;
+        }
+        @keyframes fly{
+            0%{opacity:1;transform:translate(0,0) scale(1)}
+            100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}
+        }
+        .box{
+            background:rgba(255,255,255,0.25);
+            backdrop-filter:blur(10px);
+            padding:40px 50px;
+            border-radius:22px;
+            text-align:center;
+            box-shadow:0 8px 32px rgba(0,0,0,0.15);
+        }
+        h1{
+            color:#fff;
+            font-size:2.2rem;
+            margin-bottom:16px;
+            text-shadow:0 2px 8px rgba(0,0,0,0.2);
+        }
+        .tip{
+            color:#fff;
+            font-size:1.1rem;
+            margin-bottom:28px;
+            min-height:32px;
+        }
+        .btn-group{
+            display:flex;
+            gap:14px;
+            justify-content:center;
+        }
+        button{
+            padding:12px 24px;
+            border:none;
+            border-radius:999px;
+            font-size:1rem;
+            cursor:pointer;
+            transition:0.2s;
+            background:#ffffff;
+            color:#333;
+        }
+        button:hover{
+            transform:scale(1.06);
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🪄 魔法点击页</h1>
+        <div class="tip" id="msg">点击任意地方，触发惊喜！</div>
+        <div class="btn-group">
+            <button onclick="resetAll()">重置页面</button>
+            <button onclick="secret()">神秘彩蛋</button>
+        </div>
+    </div>
+
+    <script>
+        const colors = [
+            "#ff9a9e","#fad0c4","#f6d365","#fda085",
+            "#a8edea","#fed6e3","#d299c2","#fef9d7",
+            "#89f7fe","#66a6ff","#ffecd2","#fcb69f"
+        ]
+        const texts = [
+            "今天也是超棒的一天✨",
+            "好运正在派送中📦",
+            "不要焦虑，一切顺利🍀",
+            "你闪闪发光哦🌟",
+            "吃好喝好，长生不老🍜",
+            "保持热爱，奔赴山海🌊",
+            "隐藏快乐+100",
+            "烦恼飞走啦~"
+        ]
+
+        // 随机颜色
+        function randomBg(){
+            const c = colors[Math.floor(Math.random()*colors.length)]
+            document.body.style.background = c
+        }
+        // 随机文字
+        function randomText(){
+            const t = texts[Math.floor(Math.random()*texts.length)]
+            document.getElementById("msg").innerText = t
+        }
+        // 星星
+        function createStar(x,y){
+            const s = document.createElement("div")
+            s.className="star"
+            s.innerText="★"
+            s.style.left=x+"px"
+            s.style.top=y+"px"
+            s.style.setProperty('--tx',(Math.random()-0.5)*120+"px")
+            s.style.setProperty('--ty',(Math.random()-0.5)*120+"px")
+            document.body.appendChild(s)
+            setTimeout(()=>s.remove(),800)
+        }
+        // 点击事件
+        document.body.onclick = (e)=>{
+            randomBg()
+            randomText()
+            createStar(e.clientX,e.clientY)
+        }
+        function resetAll(){
+            document.body.style.background="#89f7fe"
+            document.getElementById("msg").innerText="点击任意地方，触发惊喜！"
+        }
+        function secret(){
+            alert("🎉 恭喜触发彩蛋：你是一个有趣的人！")
+        }
+        randomBg()
+    </script>
+</body>
+</html>
